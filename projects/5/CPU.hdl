@@ -32,5 +32,14 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-	//// Replace this comment with your code.
+	//get type of instruction (A/C instruction)
+    Not(in=instruction[15], out=Ainstruct);
+    Not(in=Ainstruct, out=Cinstruct);
+
+    //get Cinstruct dest (a reg)
+    And(a=Cinstruct, b=instruct[5], out=ALUouta);
+    Mux16(a=instruct, b=ALUout, sel=ALUouta, out=AINSTout);
+    
+    //Cinstruct to reg a, otherwise load a & a instruct
+    
 }
