@@ -32,7 +32,56 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
+    //first mux from the scheme, output fed into A register, mux gets fed ALU output & instructions
+    Mux16(a=instruction, b=ALUout, sel=instruction[15], out=ARegisterIN);
+    Not(in=instruction[15], out=AInstruction);
+    Or(a=AInstruction, b=instruction[5], out=loadREGA);
+    ARegister(in=ARegisterIN, load=loadREGA, out=ARegisterOut, out[0..14]=addressM); //a register should also output addressM
+    
+    //mux16 out into ALU, takes in A register output & inM signal
+    //ixxaccccccdddjjj -> mux should also take in 'a' bit, as per the documentation
+    Mux16(a=ARegisterOut, b=inM, sel=instruction[12], out=AMUXout);
+
+    //
+    And(a=instruction[15], b=instruction[4], out=loadREGD);
+    DRegister(in=ALUout, load=loadREGD, out=DRegisterOut);
+    
+    
+    //ALU takes in D register and mux out & 6 c-bits, which determine what ALU should compute
+    ALU(x=DRegisterOut, y=AMUXout, zx=instruction[11],
+     nx=instruction[10], zy=instruction[9],
+      ny=instruction[8], f=instruction[7],
+       no=instruction[6], out=ALUout, out[0..15]=outM, zr=ZRout, ng=NGout);
+    
+    
+    //writeM -> a = gets the i-bit 
+    And(a=instruction[15], b=instruction[3], out=writeM);
+    
+    //determine when to jump based on j-bits of instruction & ALU bits zr and ng
+    Or(a=ZRout, b=NGout, out=ZRNGoutOR);
+    Not(in=ZRNGoutOR, out=NOTJUMPout);
+    
+    And(a=instruction[2], b=ZRout, out=jmp1);
+    And(a=instruction[1], b=NGout, out=jmp2);
+    And(a=instruction[0], b=NOTJUMPout, out=jmp3);
+    
+    Or(a=jmp1, b=jmp2, out=jmp12);
+    Or(a=jmp12, b=jmp3, out=FINALjump);
+    
+    
+    //takes in a register output, reset signal
+    //outputs 15 bit pc
+    PC(in=ARegisterOut, load=FINALjump, inc=true, reset=reset, out[0..14]=pc);
+    
+
+
+
+
+
+
+
 	//get type of instruction (A/C instruction)
+    /***
     Not(in=instruction[15], out=Ainstruct);
     Not(in=Ainstruct, out=Cinstruct);
 
@@ -61,13 +110,13 @@ CHIP CPU {
     Or16(a=false, b=ALUout, out=outM);
     
     //determine whether to jump
-    And(a=Cinstruct, b=instruction[0], out=JMPifGT);
-    And(a=Cinstruct, b=instruction[1], out=JMPifEQ);
-    And(a=Cinstruct, b=instruction[2], out=JMPifLT);
+    And(a=Cinstruct, b=instruction[1], out=JMPifGT);
+    And(a=Cinstruct, b=instruction[2], out=JMPifEQ);
+    And(a=Cinstruct, b=instruction[3], out=JMPifLT);
     Or(a=JMPifGT, b=ALUNGout, out=JMPgt);
     Or(a=JMPifEQ, b=ALUZRout, out=JMPeq);
     Or(a=JMPifLT, b=ALUNGout, out=JMPlt);
     Or(a=JMPgt, b=JMPeq, out=PCload);
-    PC(in=aregOUT, load=PCload, inc=true, reset=reset, out=PCout);   
-    
+    PC(in=aregOUT, load=PCload, inc=true, reset=reset, out[0..14]=pc);   
+    */
 }
