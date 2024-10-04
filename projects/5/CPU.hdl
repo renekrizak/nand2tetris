@@ -61,12 +61,13 @@ CHIP CPU {
     Or(a=ZRout, b=NGout, out=ZRNGoutOR);
     Not(in=ZRNGoutOR, out=NOTJUMPout);
     
-    And(a=instruction[2], b=ZRout, out=jmp1);
-    And(a=instruction[1], b=NGout, out=jmp2);
+    And(a=instruction[2], b=NGout, out=jmp1);
+    And(a=instruction[1], b=ZRout, out=jmp2);
     And(a=instruction[0], b=NOTJUMPout, out=jmp3);
     
-    Or(a=jmp1, b=jmp2, out=jmp12);
-    Or(a=jmp12, b=jmp3, out=FINALjump);
+    Or(a=jmp2, b=jmp3, out=jmp23);
+    Or(a=jmp23, b=jmp1, out=ORjump);
+    And(a=ORjump, b=instruction[15], out=FINALjump);
     
     
     //takes in a register output, reset signal
