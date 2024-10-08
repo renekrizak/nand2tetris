@@ -1,17 +1,12 @@
 import re
 
 
-NUM = 1
-ID = 2
-OP = 3
-ERROR = 4
-
-
-#loads asm file into array
+#loads asm file, does some cleanup and tokenizes it
 def read_asm_file(file_path):
     lines = []  
     try:
         with open(file_path, 'r') as file:
+            
             for line in file:
                 stripped_line = line.strip()  
                 if stripped_line:
@@ -26,11 +21,12 @@ def read_asm_file(file_path):
 
 
 def tokenize(line):
-    tokens = re.findall(r'\w+|[=;]', line)
+    tokens = re.findall(r'@?\w+|[=;]', line)
+
     return tokens
 
 def lexer():
-    asm_code = read_asm_file("6/pong/Pong.asm")
+    asm_code = read_asm_file("projects/6/pong/Pong.asm")
 
     #strips comments from asm code
     stripped_asm_code = []
@@ -51,9 +47,6 @@ def lexer():
         token = tokenize(line)
         tokens.append(token)
 
-
-    
-    print(tokens)
+    return tokens
     
 
-lexer()

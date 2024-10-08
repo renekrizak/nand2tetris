@@ -1,4 +1,56 @@
+import re
+from Lexer import lexer
+from Helper import *
 
+
+#returns padded binary value
+def dec2bin(n):
+    return format(n, '016b')
+#if symbol with mem address alredy exists, simply returns
+#if not present, checks if next address is not alredy occupied
+#if it is, loops until next address is free, then adds it to symbolTable if it appears in the code later
+def get_symb_val(symbol, nextAddress, usedAddress):
+    if symbol in symbolTable:
+        bin_symb = dec2bin(symbolTable[symbol])
+        return bin_symb
+    if dec2bin(nextAddress) in usedAddress.values():
+        while dec2bin(nextAddress) in usedAddress.values():
+            nextAddress += 1
+        symbolTable[symbol] = nextAddress
+    bin_symbol = symbolTable[symbol]
+    return dec2bin(bin_symbol)
+             
+#goes over all instructions and adds e.g. @21 to used addr
+#to prevent conflict when addressing lets say @i, which could end up at the same address
+def a_instruct_used_mem(tokens):
+    usedAddr = {}
+    for line in tokens:
+        symbol = line[0][1:]
+        if symbol.isnumeric():
+            mem = dec2bin(int(symbol))
+            usedAddr[symbol] = mem
+    return usedAddr
+
+#strips @ from the instruction, if its number simply returns binary form of given symbol
+def process_a_instruction(line, nextAddress, usedAddresses):
+    line = line[0][1:]
+    if line.isnumeric(): #returns value of whole num A instruction
+        return dec2bin(int(line))
+    else: #returns address of symbol eg. @i
+        return get_symb_val(line, nextAddress, usedAddresses)
+
+def Assemble():
+    tokens = lexer()
+    final = []
+
+    usedAddresses = a_instruct_used_mem(tokens)
+    nextAddress = 16
+    for line in tokens:
+        if line[0].startswith('@'):
+            ainst = process_a_instruction(line, nextAddress, usedAddresses) 
+            final.append(ainst)
+
+Assemble()
 
 
 
