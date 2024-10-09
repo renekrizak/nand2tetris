@@ -21,9 +21,7 @@ def read_asm_file(file_path):
 
 
 def tokenize(line):
-    tokens = re.findall(r'@?\w+|[=+&|\\-]', line)
-
-
+    tokens = re.findall(r'@?\$?[\w.]+|[=+&|\\-]|\(|\)', line)
     return tokens
 
 def lexer():
@@ -33,9 +31,6 @@ def lexer():
     stripped_asm_code = []
     for line in asm_code:
         line = ' '.join(line)
-
-        if line.startswith('(') and line.endswith(')'):
-            continue
 
         if '//' in line:
             comment_index = line.index('//')

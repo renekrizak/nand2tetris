@@ -1,6 +1,7 @@
 import re
 from Lexer import lexer
 from Helper import *
+import json
 
 
 #returns padded binary value
@@ -52,11 +53,10 @@ def get_a_bit_val(line, length):
 #pretty bad solution, but seems to work
 def get_c_bits_vals(line, length):
     if length == 2:
-        return "101010"
+        return compCodesA[line[0]]
     temp = ''.join(line[2:])
     if temp in compCodesA:
-        c_code = compCodesA[temp]
-        return c_code
+        return compCodesA[temp]
     else:
         return compCodesM[temp]
     
@@ -91,19 +91,58 @@ def process_c_instruction(line):
 def get_line_length(line):
     return len(line)
 
+def first_pass(tokens):
+    first_pass_addresses = {}
+    i = 0
+    for line in tokens:
+        if '(' in line:
+            if len(line) == 4:
+                temp = line[1] + line[2]
+                first_pass_addresses[temp] = dec2bin(i)
+            else:
+                first_pass_addresses[line[1]] = dec2bin(i)
+            i -= 1    
+        i += 1
+    
+    return first_pass_addresses
+
+
+def sanitize_tokens(tokens):
+    sanitized_tokens = []
+    for line in tokens:
+        if '(' in line:
+            continue
+        sanitized_tokens.append(line)
+    
+    return sanitized_tokens
+
+def second_pass(token, fp_addresses, nextAddress, symbolTable):
+    token_str = ''.join(token)
+    line = token_str[1:]
+    if line.isnumeric():
+        return dec2bin(int(line)), nextAddress
+    if line in symbolTable:
+        return dec2bin(symbolTable[line]), nextAddress
+    if line in fp_addresses:
+        return fp_addresses[line], nextAddress
+    else:
+        symbolTable[line] = nextAddress
+        nextAddress += 1
+        return dec2bin(symbolTable[line]), nextAddress
+
 
 def Assemble():
     tokens = lexer()
+    first_pass_addresses = first_pass(tokens)
+    sanitized_tokens = sanitize_tokens(tokens)
     final = []
-    usedAddresses = a_instruct_used_mem(tokens)
     nextAddress = 16
-    print(usedAddresses)
-    file2 = open("temp.hack", "w")
-    for line in tokens:
+    file2 = open("temp.hack", "w")    
+    for line in sanitized_tokens:
         if line[0].startswith('@'):
-            ainst = process_a_instruction(line, nextAddress, usedAddresses)
-            file2.write(ainst + "\n")
-            final.append(ainst)
+            final_address, nextAddress = second_pass(line, first_pass_addresses, nextAddress, symbolTable)
+            file2.write(final_address + "\n")
+            final.append(final_address)
         else:
             cinst = process_c_instruction(line)
             file2.write(cinst + "\n")
