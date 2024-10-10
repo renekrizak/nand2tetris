@@ -21,7 +21,7 @@ def read_asm_file(file_path):
 
 
 def tokenize(line):
-    tokens = re.findall(r'@?\$?[\w.]+|[=+&|\\-]|\(|\)', line)
+    tokens = re.findall(r'@?\$?[\w.]+|[=+&|\\!|-]|\(|\)', line)
     return tokens
 
 def lexer():

@@ -1,8 +1,8 @@
-import re
 from Lexer import lexer
 from Helper import *
-import json
 
+
+# pong.asm comparison works, need to refactor later this is really bad code
 
 #returns padded binary value
 def dec2bin(n):
@@ -57,7 +57,7 @@ def get_c_bits_vals(line, length):
     temp = ''.join(line[2:])
     if temp in compCodesA:
         return compCodesA[temp]
-    else:
+    if temp in compCodesM:
         return compCodesM[temp]
     
 def get_jmp_dest_bits(line):
@@ -88,7 +88,7 @@ def process_c_instruction(line):
     return c_instruction
 
 
-def get_line_length(line):
+def get_line_length(line):  
     return len(line)
 
 def first_pass(tokens):
@@ -137,7 +137,7 @@ def Assemble():
     sanitized_tokens = sanitize_tokens(tokens)
     final = []
     nextAddress = 16
-    file2 = open("temp.hack", "w")    
+    file2 = open("temp.hack", "w") 
     for line in sanitized_tokens:
         if line[0].startswith('@'):
             final_address, nextAddress = second_pass(line, first_pass_addresses, nextAddress, symbolTable)
@@ -147,8 +147,6 @@ def Assemble():
             cinst = process_c_instruction(line)
             file2.write(cinst + "\n")
             final.append(cinst)
-            
-
 Assemble()
 
 
