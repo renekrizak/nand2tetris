@@ -3,12 +3,13 @@ commands = ['push', 'pop', 'add', 'sub', 'neg',
 
 commands_arithmetic = [
     'add', 'sub', 'neg', 'eq',
-    'gt', 'lt', 'and', 'or', 'not'
+    'gt', 'lt', 'and', 'or', 'not'      
 ]
 
 args = ['local', 'argument', 'this', 'that', 'constant',
         'static', 'temp', 'pointer']
 
 
-
+seg_types = ['local', 'argument', 'this', 'that',
+             'constant', 'static', 'pointer', 'temp']
 

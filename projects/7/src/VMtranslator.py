@@ -1,5 +1,6 @@
 from Lexer import Lexer
 from Parser import Parser
+from CodeWriter import CodeWriter
 import sys, os
 
 class Translator(object):
@@ -33,6 +34,6 @@ def main():
 
     parser = Parser(tokens)
     parsed_tokens = parser.parse_commands()
-
+    write = CodeWriter(f"{file_name}.asm")
     print(parsed_tokens)
 main()
