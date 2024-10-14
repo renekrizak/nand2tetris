@@ -1,4 +1,5 @@
 from Lexer import Lexer
+from Parser import Parser
 import sys, os
 
 class Translator(object):
@@ -30,4 +31,8 @@ def main():
     lexer = Lexer(file_path)
     tokens = lexer.tokenize()
 
+    parser = Parser(tokens)
+    parsed_tokens = parser.parse_commands()
+
+    print(parsed_tokens)
 main()
