@@ -1,4 +1,4 @@
-import Lexer
+from Lexer import Lexer
 import sys, os
 
 class Translator(object):
@@ -27,5 +27,7 @@ def main():
     else:
         print(f"File {file_name}.vm not found")
     
+    lexer = Lexer(file_path)
+    tokens = lexer.tokenize()
 
 main()
