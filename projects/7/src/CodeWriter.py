@@ -76,12 +76,35 @@ class CodeWriter(object):
 
         self.sp_increment()
 
-
     def write_arithmetic_gt(self, jump):
-        pass
+        self.decrement_sp()
+        self.push_stack_to_dest("D")
+        self.decrement_sp()
+        self.push_stack_to_dest("A")
+        self.c_command("D", "A-D")
+        label_true = f"TRUE_{self.label_count}"
+        label_end = f"END_{self.label_count}"
+        self.label_count += 1
+
+        self.a_command(label_true)
+        self.c_command(None, "D", "JGT")
+
+        self.push_comp_to_stack("0")
+        self.a_command(label_end)
+        self.c_command(None, "0", "JMP")
+
+        self.write_label(label_true)
+        self.push_comp_to_stack("-1")
+        
+        self.write_label(label_end)
+
+        self.sp_increment()
 
     def write_arithmetic_lt(self, jump):
-        pass
+        self.decrement_sp()
+        self.push_stack_to_dest("D")
+        self.decrement_sp()
+        self.push_stack_to_dest("A")
 
     #same as add
     def write_arithmetic_and(self, comp):
@@ -103,13 +126,36 @@ class CodeWriter(object):
         self.sp_increment()
 
     def write_arithmetic_not(self, comp):
-        pass
+        self.decrement_sp()
+        self.push_stack_to_dest("D")
+        self.c_command("D", comp)
+        self.push_comp_to_stack("D")
+        self.sp_increment()
 
-    def write_push_pop(self):
-        pass
+    def write_push(self, segment, index):
+        if segment == "constant":
+            self.write_push_constant(index)
+        elif segment in ['local', 'argument', 'this', 'that']:
+            self.write_push_lcl_arg_this_that(index)
+        elif segment == "temp":
+            self.write_push_temp(index)
+        elif segment == "pointer":
+            self.write_push_pointer(index)
+        elif segment == "static":
+            self.write_push_static(index)
+    
+    def write_pop(self, segment, index):
+        if segment in ["local", "argument", "this", "that"]:
+            self.write_pop_lcl_arg_this_that(index)
+        elif segment == "temp":
+            self.write_pop_temp(index)
+        elif segment == "pointer":
+            self.write_pop_pointer(index)
+        elif segment == "static":
+            self.write_pop_static(index)
 
-    def write_label(self):
-        pass
+    def write_label(self, label):
+        self.outfile.write(f"({label})\n")
 
     def write_goto(self):
         pass
@@ -126,9 +172,20 @@ class CodeWriter(object):
     def write_return(self):
         pass
 
-    def push(self, segment, index):
-        pass
+    def write_push_constant(self, index):
+        self.a_command(index)
+        self.c_command("D", "A")
+        self.push_d_to_stack()
 
+    def push_d_to_stack(self):
+        self.get_sp()
+        self.c_command("M", "D")
+        self.sp_increment()
+
+    def pop_stack_to_d(self):
+        self.decrement_sp()
+        self.get_sp()
+        self.c_command("D", "M")
     #increment SP
     def sp_increment(self):
         self.a_command("SP")
