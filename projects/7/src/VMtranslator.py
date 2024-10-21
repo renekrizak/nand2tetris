@@ -38,6 +38,11 @@ def main():
     print(parsed_tokens)
 
     for command in parsed_tokens:
-        write.write_arithmetic(command)
+        if command[0][1] == "push":
+            write.write_push(command[1][1], command[2][1])
+        elif command[0][1] == "pop":
+            write.write_pop(command[1][1], command[2][1])
+        else:
+            write.write_arithmetic(command)
     write.close_file()
 main()

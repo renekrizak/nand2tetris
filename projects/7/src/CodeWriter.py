@@ -140,7 +140,7 @@ class CodeWriter(object):
         if segment == "constant":
             self.write_push_constant(index)
         elif segment in ['local', 'argument', 'this', 'that']:
-            self.write_push_lcl_arg_this_that(index)
+            self.write_push_lcl_arg_this_that(segment, index)
         elif segment == "temp":
             self.write_push_temp(index)
         elif segment == "pointer":
@@ -148,15 +148,75 @@ class CodeWriter(object):
         elif segment == "static":
             self.write_push_static(index)
     
+    def write_push_lcl_arg_this_that(self, segment, index):
+        base_addr = ""
+        if segment == "local":
+            base_addr = "LCL"
+        elif segment == "argument":
+            base_addr = "ARG"
+        elif segment == "this":
+            base_addr = "THIS"
+        elif segment == "that":
+            base_addr == "THAT"
+        
+        self.a_command(base_addr) #@LCL, @ARG etc.
+        self.c_command("D", "M")  #D = M[seg]
+
+        self.a_command(index) # add index to base addr
+        self.c_command("A", "D+A") #A = base + index
+
+        self.c_command("D", "M") #D = M[base + index]
+        self.push_comp_to_stack("D") #push d to stack
+
+        self.sp_increment()
+
+    def write_push_temp(self, index):
+        base_addr = 5 #starts at R5
+
+        temp_addr = base_addr + int(index)
+
+        self.a_command(temp_addr)
+        self.c_command("D", "M")
+        self.push_comp_to_stack("D")
+        self.sp_increment()
+
+
     def write_pop(self, segment, index):
         if segment in ["local", "argument", "this", "that"]:
-            self.write_pop_lcl_arg_this_that(index)
+            self.write_pop_lcl_arg_this_that(segment, index)
         elif segment == "temp":
             self.write_pop_temp(index)
         elif segment == "pointer":
             self.write_pop_pointer(index)
         elif segment == "static":
             self.write_pop_static(index)
+
+    def write_pop_lcl_arg_this_that(self, segment, index):
+        if segment == "local":
+            self.a_command("LCL")
+        elif segment == "argument":
+            self.a_command("ARG")
+        elif segment == "this":
+            self.a_command("THIS")
+        elif segment == "that":
+            self.a_command("THAT")
+        
+        self.c_command("D", "M") 
+        self.a_command(index)
+        self.c_command("A", "D+A")
+
+        self.decrement_sp()
+        self.get_sp()
+        self.c_command("M", "D")
+
+    def write_pop_temp(self, index):
+        base_addr = 5
+        temp_addr = base_addr + int(index)
+
+        self.decrement_sp()
+        self.get_sp()
+        self.c_command("M", "D")
+
 
     def write_label(self, label):
         self.outfile.write(f"({label})\n")
