@@ -36,4 +36,8 @@ def main():
     parsed_tokens = parser.parse_commands()
     write = CodeWriter(f"{file_name}.asm")
     print(parsed_tokens)
+
+    for command in parsed_tokens:
+        write.write_arithmetic(command)
+    write.close_file()
 main()

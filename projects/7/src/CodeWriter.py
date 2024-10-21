@@ -6,16 +6,20 @@ class CodeWriter(object):
         self.outfile = open(outfile, "w")
         self.label_count = 0
 
+    def close_file(self):
+        self.outfile.close()
+
     def write_arithmetic(self, command):
-        if command == "add": self.write_arithmetic_add("D+A")
-        elif command == "sub": self.write_aritmetic_sub("D-A")
-        elif command == "neg": self.write_arithmetic_neg("-D")
-        elif command == "eq": self.write_arithmetic_eq("JEQ")
-        elif command == "gt": self.write_arithmetic_gt("JGT")
-        elif command == "lt": self.write_arithmetic_lt("JLT")
-        elif command == "and": self.write_arithmetic_and("D&A")
-        elif command == "or": self.write_arithmetic_or("D|A")
-        elif command == "not": self.write_arithmetic_or("!D")
+        print(f"writing command: {command}")
+        if command[0][1] == "add": self.write_arithmetic_add("D+A")
+        elif command[0][1] == "sub": self.write_aritmetic_sub("D-A")
+        elif command[0][1] == "neg": self.write_arithmetic_neg("-D")
+        elif command[0][1] == "eq": self.write_arithmetic_eq("JEQ")
+        elif command[0][1] == "gt": self.write_arithmetic_gt("JGT")
+        elif command[0][1] == "lt": self.write_arithmetic_lt("JLT")
+        elif command[0][1] == "and": self.write_arithmetic_and("D&A")
+        elif command[0][1] == "or": self.write_arithmetic_or("D|A")
+        elif command[0][1] == "not": self.write_arithmetic_or("!D")
     
 
     #First we decrement Stack Pointer to get value on the stack
@@ -237,4 +241,4 @@ class CodeWriter(object):
             if not isinstance(jump, str):
                 raise ValueError("Jump must be a string")
             command += f";{jump}"
-        self.outfile.write(command + "\n0")
+        self.outfile.write(command + "\n")
