@@ -10,7 +10,6 @@ class CodeWriter(object):
         self.outfile.close()
 
     def write_arithmetic(self, command):
-        print(f"writing command: {command}")
         if command[0][1] == "add": self.write_arithmetic_add("D+A")
         elif command[0][1] == "sub": self.write_aritmetic_sub("D-A")
         elif command[0][1] == "neg": self.write_arithmetic_neg("-D")
@@ -149,26 +148,32 @@ class CodeWriter(object):
             self.write_push_static(index)
     
     def write_push_lcl_arg_this_that(self, segment, index):
-        base_addr = ""
-        if segment == "local":
-            base_addr = "LCL"
-        elif segment == "argument":
-            base_addr = "ARG"
-        elif segment == "this":
-            base_addr = "THIS"
-        elif segment == "that":
-            base_addr == "THAT"
+        seg_map = {
+            "local":"LCL",
+            "argument":"ARG",
+            "this":"THIS",
+            "that":"THAT"
+        }
+
+        base_addr = seg_map.get(segment)
+
+        if base_addr is None:
+            raise ValueError(f"Invalid segment syntax: {segment}")
         
-        self.a_command(base_addr) #@LCL, @ARG etc.
-        self.c_command("D", "M")  #D = M[seg]
+        int_index = int(index)
+        
+        self.a_command(base_addr)
+        self.c_command("D", "M")
 
-        self.a_command(index) # add index to base addr
-        self.c_command("A", "D+A") #A = base + index
+        self.a_command(int_index)
+        self.c_command("A", "D+A")
 
-        self.c_command("D", "M") #D = M[base + index]
-        self.push_comp_to_stack("D") #push d to stack
+        self.c_command("D", "M")
+
+        self.push_comp_to_stack("D")
 
         self.sp_increment()
+
 
     def write_push_temp(self, index):
         base_addr = 5 #starts at R5
@@ -192,21 +197,34 @@ class CodeWriter(object):
             self.write_pop_static(index)
 
     def write_pop_lcl_arg_this_that(self, segment, index):
-        if segment == "local":
-            self.a_command("LCL")
-        elif segment == "argument":
-            self.a_command("ARG")
-        elif segment == "this":
-            self.a_command("THIS")
-        elif segment == "that":
-            self.a_command("THAT")
+        seg_map = {
+            "local":"LCL",
+            "argument":"ARG",
+            "this":"THIS",
+            "that":"THAT"
+        }
+
+        base_addr = seg_map.get(segment)
+        if base_addr is None:
+            raise ValueError(f"Invalid seg syntax: {segment}")
         
-        self.c_command("D", "M") 
-        self.a_command(index)
-        self.c_command("A", "D+A")
+        int_index = int(index)
+
+        self.a_command(base_addr)
+        self.c_command("D", "M")
+
+        self.a_command(int_index)
+        self.c_command("D", "D+A")
+
+        self.a_command("R13")
+        self.c_command("M", "D")
 
         self.decrement_sp()
         self.get_sp()
+        self.c_command("D", "M")
+
+        self.a_command("R13")
+        self.c_command("A", "M")
         self.c_command("M", "D")
 
     def write_pop_temp(self, index):
