@@ -1,0 +1,42 @@
+class Tetromino {
+
+    field Array shape;
+    field int x, y; 
+
+    function void init(Array shape) {
+        let this.shape = shape;
+        let x = 5; 
+        let y = 0;
+    }
+    
+    function void moveLeft() {
+        let x = x - 1;
+    }
+    
+    function void moveRight() {
+        let x = x + 1;
+    }
+
+    function void moveDown() {
+        let y = y + 1;
+    }
+    
+    function void rotate() {
+        //implement later
+    }
+
+    function void draw() {
+        var int row, col;
+        let row = 0;
+        while (row < shape.length) {
+            let col = 0;
+            while (col < shape[row].length) {
+                if (shape[row][col] != 0) {
+                    do Screen.drawRectangle((x + col) * 10, (y + row) * 10, (x + col + 1) * 10, (y + row + 1) * 10);
+                }
+                let col = col + 1;
+            }
+            let row = row + 1;
+        }
+    }
+}

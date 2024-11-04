@@ -135,6 +135,8 @@ M=M+1
 M=M-1
 @SP
 A=M
+D=M
+@11
 M=D
 @LCL
 D=M

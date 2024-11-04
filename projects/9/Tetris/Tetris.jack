@@ -1,0 +1,36 @@
+class Tetris {
+    field array board
+
+    function void init() {
+        let board = Array.new(20)
+        var int i;
+        let i = 0;
+        while(i < 20) {
+            let board[i] = Array.new(10)
+            let i = i + 1;
+        }
+
+        function void run() {
+            while (true) {
+                do Screen.clearScreen();
+                do drawBoard();
+                do Sys.wait(1000);
+            }
+        }
+
+        function void drawBoard() {
+            var int row, col;
+            let row = 0;
+            while (row < 20) {
+                let col = 0;
+                while (col < 10) {
+                    if (board[row][col] != 0) {
+                        do Screen.drawRectangle(col * 10, row * 10, (col + 1) * 10, (row + 1) * 10);
+                    }
+                    let col = col + 1;
+                }
+                let row = row + 1;
+            }
+        }
+    }
+}

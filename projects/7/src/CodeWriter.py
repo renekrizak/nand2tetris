@@ -65,6 +65,9 @@ class CodeWriter(object):
         label_end = f"END_{self.label_count}"
         self.label_count += 1
 
+        self.a_command(label_true)
+        self.c_command(None, "D", jump)
+
         #if d == 0 jump to true
         self.push_comp_to_stack("0")
         self.a_command(label_end)
@@ -90,7 +93,7 @@ class CodeWriter(object):
         self.label_count += 1
 
         self.a_command(label_true)
-        self.c_command(None, "D", "JGT")
+        self.c_command(None, "D", jump)
 
         self.push_comp_to_stack("0")
         self.a_command(label_end)
@@ -108,6 +111,24 @@ class CodeWriter(object):
         self.push_stack_to_dest("D")
         self.decrement_sp()
         self.push_stack_to_dest("A")
+        self.c_command("D", "A-D")
+
+        label_true = f"TRUE_{self.label_count}"
+        label_end = f"END_{self.label_count}"
+        self.label_count += 1
+
+        self.a_command(label_true)
+        self.c_command(None, "D", jump)
+
+        self.push_comp_to_stack("0")
+        self.a_command(label_end)
+        self.c_command(None, "0", "JMP")
+
+        self.write_label(label_true)
+        self.push_comp_to_stack("-1")
+
+        self.write_label(label_end)
+        self.sp_increment()
 
     #same as add
     def write_arithmetic_and(self, comp):
@@ -233,8 +254,10 @@ class CodeWriter(object):
 
         self.decrement_sp()
         self.get_sp()
-        self.c_command("M", "D")
+        self.c_command("D", "M")
 
+        self.a_command(temp_addr)
+        self.c_command("M", "D")
 
     def write_label(self, label):
         self.outfile.write(f"({label})\n")
