@@ -3,3 +3,5 @@ text: ' voidsadsad ' != ' void '
 children 2 dont match keyword
 children 5 dont match subroutineDec
 Files Main.xml and Test.xml are not equal
+Files Main.xml and Test.xml are equal
+Files Main.xml and Test.xml are equal
