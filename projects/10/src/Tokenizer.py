@@ -6,9 +6,16 @@ class Tokenizer():
         pass
 
     def tokenize(self, fp):
+        lines = []
         try:
             with open(fp, "r") as file:
-                pass
+                for line in file:
+                    stripped_line = line.strip()
+                    if stripped_line:
+                        print(stripped_line)
+                        tokens = stripped_line.split()
+                        lines.append(tokens)
+        
         except FileNotFoundError:
             print(f"File {file} was not found")
         except Exception as e:

@@ -20,8 +20,13 @@ def main():
     file_path = get_filepath(file_name) 
     if file_path == None:
         print(f"File ${file_name} was not found")
-
     
+    tokenizer = Tokenizer(file_path)    
+    tokens = tokenizer.tokenize(file_path)
+    
+
+
+
 """
     original_xml_file = f"{file_name}_output.xml"
     compiler_xml_file = f"{file_path}.xml"
