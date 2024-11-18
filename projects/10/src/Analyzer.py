@@ -22,7 +22,8 @@ def main():
         print(f"File ${file_name} was not found")
     
     tokenizer = Tokenizer(file_path)    
-    tokens = tokenizer.tokenize(file_path)
+    tokens = tokenizer.tokenize()
+    print(tokens)
     
 
 
