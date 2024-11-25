@@ -190,26 +190,161 @@ classVarDec → ('static' | 'field') type varName (',' varName)* ';'
         
         
     def compileLet(self):
-        pass
+        """
+        letStatement → 'let' varName ('[' expression ']')? '=' expression ';'
+        """
+        self.consume('keyword', 'let')
+
+        if self.current_token[0] != 'identifier':
+            raise SyntaxError(f"Expected variable name, instead got: {self.current_token}")
+
+        self.advance()
+
+        if self.current_token == ('symbol', '['):
+            self.advance()
+            self.compileExpression()
+            if self.current_token != ('symbol', ']'):
+                raise SyntaxError(f'Expected closing parantheses, instead got: {self.current_token}')
+            self.advance()
+
+        self.consume('symbol', '=')
+
+        self.compileExpression()
+
+        self.consume('symbol', ';')
+
 
     def compileIf(self):
-        pass
+        """
+        ifStatement → 'if' '(' expression ')' '{' statements '}' ('else' '{' statements '}')?
+        """
+        self.consume('keyword', 'if')
+        self.consume('symbol', '(')
+        self.compileExpression()
+        self.consume('symbol', ')')
+
+        self.consume('symbol', '{')
+        self.compileStatements()
+        self.consume('symbol', '}')
+
+        if self.current_token == ('keyword', 'else'):
+            self.consume('keyword', 'else')
+            self.consume('symbol', '{')
+            self.compileStatements()
+            self.consume('symbol', '}')
 
     def compileWhile(self):
-        pass
+        """
+        whileStatement → 'while' '(' expression ')' '{' statements '}'
+        """
+        self.consume('keyword', 'while')
+        self.consume('symbol', '(')
+        self.compileExpression()
+        self.consume('symbol', ')')
+        self.consume('symbol', '{')
+        self.compileStatements()
+        self.consume('symbol', '}')
 
     def compileDo(self):
-        pass
+        """
+        doStatement → 'do' subroutineCall ';'
+        """
+
+        self.consume('keyword', 'do')
+        self.compileSubroutineCall()
+        self.consume('symbol', ';')
 
     def compileReturn(self):
-        pass
+        """
+        returnStatement → 'return' expression? ';'
+        """
+
+        self.consume('keyword', 'return')
+        if self.current_token != ('symbol', ';'):
+            self.compileExpression()
+        self.consume('symbol', ';')
 
     def compileExpression(self):
-        pass
+        """
+        expression → term (op term)*
+        """
+
+        self.compileTerm()
+
+        while self.current_token and self.current_token[0] == 'symbol' and self.current_token[1] in "+-*/&|<>=":
+            self.advance()
+            self.compileTerm()
+
+
 
     def compileTerm(self):
-        pass
+        """
+        term → integerConstant | stringConstant | keywordConstant | varName | varName '[' expression ']' 
+            | subroutineCall | '(' expression ')' | unaryOp term
+        """
+        if self.current_token[0] == 'integer':
+            self.advance()
+            #make token to xml function
+        elif self.current_token[0] == 'string':
+            self.advance()
+        elif self.current_token[0] == 'keyword':
+            self.advance()
+        elif self.current_token == ('symbol', '('):
+            self.advance()
+            self.compileExpression()
+            if self.current_token != ('symbol', ')'):
+                raise SyntaxError(f'Expected closing parantheses, instead got: {self.current_token}')
+            self.advance()
+        elif self.current_token[0] == 'symbol' and self.current_token[1] in '-~':
+            self.advance()
+            self.compileTerm()
+        elif self.current_token[0] == 'identifier':
+            next_token = self.tokens[self.index + 1] if self.index + 1 < len(self.tokens) else None
+            if next_token == ('symbol', '['):
+                self.advance()
+                self.advance()
+                self.compileExpression()
+                if self.current_token != ('symbol', ']'):
+                    raise SyntaxError(f'Expected closing brackets, instead got: {self.current_token}')
+                self.advance()
+            elif next_token in [('symbol', '('), ('symbol', '.')]:
+                self.compileSubroutine()
+            else:
+                self.advance()
+        else:
+            raise SyntaxError(f"Invalid term: {self.current_token}")
+
+
 
     def compileExpressionList(self):
-        pass
+         """
+        expressionList → (expression (',' expression)*)?
+        """
+         if self.current_token != ('symbol', ')'):
+             self.compileExpression()
 
+             while self.current_token == ('symbol', ','):
+                 self.advance()
+                 self.compileExpression()
+
+    def compileSubroutineCall(self):
+        """
+        subroutineCall → subroutineName '(' expressionList ')' 
+                   | (className | varName) '.' subroutineName '(' expressionList ')'
+       """
+        if self.current_token[0] != 'identifier':
+            raise SyntaxError(f'Expected subroutineName, className or varName, instead got: {self.current_token}')
+        self.advance()
+
+        if self.current_token == ('symbol', '.'):
+            self.advance()
+
+            if self.current_token[0] != 'identifier':
+                raise SyntaxError(f'Expected subroutine name after: .')
+            self.advance()
+
+            self.consume('symbol', '(')
+
+            self.compileExpressionList()
+
+            self.consume('symbol', ')')
