@@ -34,22 +34,26 @@ class Parser():
         
         with open(filename, 'w') as xml_file:
             def indent(level):
-                return " " * level
+                return "  " * level
             
+            indent_start = ['<class>', '<classVarDec>', '<subroutineDec>', '<parameterList>', '<subroutineBody>', '<varDec>', '<statements>',
+                     '<letStatement>','<ifStatement>', '<whileStatement>', '<doStatement>', '<returnStatement>',
+                       '<expression>', '<term>', '<expressionList>', '<subroutineCall>',]
+            indent_end = ['</class>', '</classVarDec>', '</subroutineDec>', '</parameterList>', '</subroutineBody>', '</varDec>', '</statements>',
+                     '</letStatement>','</ifStatement>', '</whileStatement>', '</doStatement>', '</returnStatement>',
+                       '</expression>', '</term>', '</expressionList>', '</subroutineCall>',]
             level = 0
-            for line in self.output:
-                if line.startswith('<') and not line.startswith('</'):
-                    xml_file.write(f"{indent(level)}{line}\n")
-                    if not line.startswith('<symbol>') and not line.startswith('<identifier>'):
-                        level += 1
-                
-                elif line.startswith('</'):
-                    level -= 1
-                    xml_file.write(f'{indent(level)}{line}\n')
 
+            for line in self.output:
+                if any(substring in line for substring in indent_start):
+                    xml_file.write(f'{indent(level)}{line}\n')
+                    level +=1
+                elif any(substring in line for substring in indent_end):
+                    level -=1
+                    xml_file.write(f'{indent(level)}{line}\n')
                 else:
                     xml_file.write(f'{indent(level)}{line}\n')
-        
+                
 
     def advance(self):
         #moves to the next token
