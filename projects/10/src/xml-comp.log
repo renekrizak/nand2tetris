@@ -1,7 +1,1 @@
-Files Main.xml and Test.xml are equal
-text: ' voidsadsad ' != ' void '
-children 2 dont match keyword
-children 5 dont match subroutineDec
-Files Main.xml and Test.xml are not equal
-Files Main.xml and Test.xml are equal
-Files Main.xml and Test.xml are equal
+Files Square_output.xml and C:\Users\renko\Desktop\nand2tetris\nand2tetris\nand2tetris\projects\10\ExpressionLessSquare\Square.xml are equal

@@ -1,6 +1,7 @@
 #Main loop of the whole process
 from Tester import XmlTreeTester
 from Tokenizer import Tokenizer
+from CompilationEngine import Parser
 import sys, os
 
 def get_filepath(filename):
@@ -23,17 +24,17 @@ def main():
     
     tokenizer = Tokenizer(file_path)    
     tokens = tokenizer.tokenize()
-    print(tokens)
     
+    parser = Parser(tokens)
+    parser.compileClass()
+    parser.writeToXML(f'{file_name}_output.xml')
 
-
-
-"""
-    original_xml_file = f"{file_name}_output.xml"
-    compiler_xml_file = f"{file_path}.xml"
+    file_path = file_path[:-5]
+    compiled_xml_file = f"{file_name}_output.xml"
+    original_xml_file = f"{file_path}.xml"
     tester = XmlTreeTester()
-    tester.load_and_compare(original_xml_file, compiler_xml_file)
-"""
+    tester.load_and_compare(compiled_xml_file, original_xml_file)
+
 
 
 
