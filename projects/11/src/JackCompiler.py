@@ -31,7 +31,8 @@ class JackCompiler:
         folder_name = self.get_args()
         filepaths = self.get_filenames(folder_name)
 
-        print(filepaths)
+        for fn in filepaths:
+            pass
 
 test = JackCompiler()
 test.main()

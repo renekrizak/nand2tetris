@@ -1,36 +1,39 @@
 
 class VMWriter:
-    def __init__(self):
-        pass
+    def __init__(self, outfile):
+        self.outfile = outfile
 
-    def writePush(self):
-        pass
+    def writeFile(self, line):
+        with open(self.outfile, 'a') as out:
+            out.write(f'{line}\n')
 
-    def writePop(self):
-        pass
+    """
+    Add checks for all write commands
+    """
+    def writePush(self, segment: str, index: int):
+        self.writeFile(f'push {segment} {index}')
 
-    def writeArithmetic(self):
-        pass
+    def writePop(self, segment: str, index: int):
+        self.writeFile(f'pop {segment} {index}')
 
-    def writeLabel(self):
-        pass
+    def writeArithmetic(self, command: str):
+        self.writeFile(f'{command}')
 
-    def writeGoto(self):
-        pass
+    def writeLabel(self, label: str):
+        self.writeFile(f'label {label}')
 
-    def writeLabel(self):
-        pass
+    def writeGoto(self, label: str):
+        self.writeFile(f'goto {label}')
 
-    def writeIf(self):
-        pass
+    def writeIf(self, label: str):
+        self.writeFile(f'if-goto {label}')
 
-    def writeCall(self):
-        pass
+    def writeCall(self, name: str, nArgs: int):
+        self.writeFile(f'call {name} {nArgs}')
 
-    def writeFunction(self):
-        pass
+    def writeFunction(self, name: str, nVars: int):
+        self.writeFile(f'function {name} {nVars}')
 
     def writeReturn(self):
-        pass
+        self.writeFile('return')
 
-    
