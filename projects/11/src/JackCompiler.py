@@ -1,11 +1,15 @@
 import sys, os
+from Tokenizer import Tokenizer
+from SymbolTable import SymbolTable
+from VMWriter import VMWriter
+from CompilationEngine import CompilationEngine
 
 class JackCompiler:
     def __init__(self):
         pass
 
     def get_args(self):
-        if len(sys.argv) != 1:
+        if len(sys.argv) < 2:
             print('Program takes one argument')
             print('Usage: JackCompiler.py <folder name>')
             return 
@@ -32,7 +36,13 @@ class JackCompiler:
         filepaths = self.get_filenames(folder_name)
 
         for fn in filepaths:
-            pass
+            tokenizer = Tokenizer(fn)
+            tokens = tokenizer.tokenize()
+            symbol_table = SymbolTable()
+            vm_writer = VMWriter(fn.replace('.jack', '.vm'))
+
+            comp_engine = CompilationEngine(tokens, fn.replace('.jack', '.vm'))
+            comp_engine.compileClass()
 
 test = JackCompiler()
 test.main()
